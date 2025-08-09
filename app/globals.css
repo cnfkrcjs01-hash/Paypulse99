@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 255 255 255;
+    --foreground: 17 24 39;
+    --border: 229 231 235; /* gray-200 */
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white/60 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 p-6 hover:shadow-xl transition-all duration-300;
+  }
+  
+  .card-gradient {
+    @apply bg-gradient-to-br from-white/80 to-slate-50/80 backdrop-blur-lg rounded-2xl shadow-lg border border-white/30 p-6;
+  }
+  
+  .btn-primary {
+    @apply bg-gradient-to-r from-blue-400 to-indigo-500 hover:from-blue-500 hover:to-indigo-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5;
+  }
+  
+  .btn-secondary {
+    @apply bg-white/70 hover:bg-white/90 text-slate-700 font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl border border-slate-200/50 transition-all duration-200 transform hover:-translate-y-0.5;
+  }
+  
+  .pulse-animation {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .glass-effect {
+    @apply bg-white/30 backdrop-blur-lg border border-white/20 shadow-lg;
+  }
+
+  /* 파스텔 그라데이션 클래스들 */
+  .gradient-rose {
+    @apply bg-gradient-to-br from-rose-100 to-pink-200;
+  }
+  
+  .gradient-blue {
+    @apply bg-gradient-to-br from-blue-100 to-indigo-200;
+  }
+  
+  .gradient-emerald {
+    @apply bg-gradient-to-br from-emerald-100 to-teal-200;
+  }
+  
+  .gradient-purple {
+    @apply bg-gradient-to-br from-purple-100 to-violet-200;
+  }
+  
+  .gradient-amber {
+    @apply bg-gradient-to-br from-amber-100 to-orange-200;
+  }
+}
+
+/* 커스텀 스크롤바 */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-100/50;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300/70 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400/70;
+}
+
+
