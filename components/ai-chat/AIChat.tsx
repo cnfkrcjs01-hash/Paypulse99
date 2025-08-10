@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { Bot, Calculator, FileText, Lightbulb, Loader, Send, TrendingUp, User } from 'lucide-react'
 import type React from 'react'
-import { Send, Bot, User, Loader, Lightbulb, TrendingUp, Calculator, FileText } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 interface Message {
   id: string
@@ -35,7 +35,7 @@ export default function AIChat() {
       ]
     }
   ])
-  
+
   const [inputMessage, setInputMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [chatData, setChatData] = useState<ChatData | null>(null)
@@ -45,18 +45,32 @@ export default function AIChat() {
   useEffect(() => {
     const savedData = localStorage.getItem('paypulse_data')
     if (savedData) {
-      const data = JSON.parse(savedData)
-      const totalCost = data.employees?.reduce((sum: number, emp: any) => sum + emp.totalCost, 0) || 0
-      const contractorCost = data.contractors?.reduce((sum: number, cont: any) => sum + cont.contractAmount, 0) || 0
-      const agencyCost = data.agencies?.reduce((sum: number, agency: any) => sum + agency.monthlyCost, 0) || 0
-      
-      setChatData({
-        employees: data.employees || [],
-        contractors: data.contractors || [],
-        agencies: data.agencies || [],
-        totalCost: totalCost + contractorCost + agencyCost,
-        totalEmployees: data.employees?.length || 0
-      })
+      try {
+        const data = JSON.parse(savedData)
+        const totalCost = (data.employees || []).reduce((sum: number, emp: any) => {
+          const cost = emp?.totalCost || 0
+          return sum + (isNaN(cost) ? 0 : cost)
+        }, 0)
+        const contractorCost = (data.contractors || []).reduce((sum: number, cont: any) => {
+          const cost = cont?.contractAmount || 0
+          return sum + (isNaN(cost) ? 0 : cost)
+        }, 0)
+        const agencyCost = (data.agencies || []).reduce((sum: number, agency: any) => {
+          const cost = agency?.monthlyCost || 0
+          return sum + (isNaN(cost) ? 0 : cost)
+        }, 0)
+
+        setChatData({
+          employees: data.employees || [],
+          contractors: data.contractors || [],
+          agencies: data.agencies || [],
+          totalCost: totalCost + contractorCost + agencyCost,
+          totalEmployees: data.employees?.length || 0
+        })
+      } catch (error) {
+        console.error('데이터 파싱 오류:', error)
+        setChatData(null)
+      }
     }
   }, [])
 
@@ -72,12 +86,12 @@ export default function AIChat() {
     const message = userMessage.toLowerCase()
 
     if (message.includes('현황') || message.includes('상황')) {
-      return chatData ? 
+      return chatData ?
         `우리 회사 인건비 현황을 분석해드릴게요! 📊\n\n` +
-        `💰 **총 인건비**: ${(chatData.totalCost).toLocaleString('ko-KR')}원\n` +
-        `👥 **총 인원**: ${chatData.totalEmployees}명\n` +
-        `📈 **인당 평균비용**: ${chatData.totalEmployees > 0 ? Math.round(chatData.totalCost / chatData.totalEmployees).toLocaleString('ko-KR') : 0}원\n\n` +
-        `직원 급여가 ${((chatData.employees.reduce((sum, emp) => sum + emp.totalCost, 0) / chatData.totalCost) * 100).toFixed(1)}%를 차지하고 있어요. 전체적으로 안정적인 구조를 보이고 있습니다! 👍` :
+        `💰 **인건비**: ${(chatData.totalCost || 0).toLocaleString('ko-KR')}원\n` +
+        `👥 **총 인원**: ${chatData.totalEmployees || 0}명\n` +
+        `📈 **인당 평균비용**: ${(chatData.totalEmployees || 0) > 0 ? Math.round((chatData.totalCost || 0) / (chatData.totalEmployees || 1)).toLocaleString('ko-KR') : 0}원\n\n` +
+        `직원 급여가 ${((chatData.employees || []).reduce((sum, emp) => sum + ((emp?.totalCost || 0) || 0), 0) / Math.max(chatData.totalCost || 1, 1) * 100).toFixed(1)}%를 차지하고 있어요. 전체적으로 안정적인 구조를 보이고 있습니다! 👍` :
         '데이터를 먼저 업로드해주시면 정확한 분석을 도와드릴 수 있어요! 📁'
 
     } else if (message.includes('4대보험') || message.includes('보험')) {
@@ -238,26 +252,23 @@ export default function AIChat() {
           <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[80%] ${message.type === 'user' ? 'order-2' : 'order-1'}`}>
               <div className={`flex items-start gap-3 ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                <div className={`p-2 rounded-full flex-shrink-0 ${
-                  message.type === 'user' 
-                    ? 'bg-blue-600 text-white' 
+                <div className={`p-2 rounded-full flex-shrink-0 ${message.type === 'user'
+                    ? 'bg-blue-600 text-white'
                     : 'bg-gray-200 text-gray-600'
-                }`}>
+                  }`}>
                   {message.type === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                 </div>
-                
-                <div className={`rounded-2xl px-4 py-3 ${
-                  message.type === 'user'
+
+                <div className={`rounded-2xl px-4 py-3 ${message.type === 'user'
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 text-gray-800'
-                }`}>
-                  <div className="whitespace-pre-wrap">{message.content}</div>
-                  <div className={`text-xs mt-2 ${
-                    message.type === 'user' ? 'text-blue-100' : 'text-gray-500'
                   }`}>
-                    {message.timestamp.toLocaleTimeString('ko-KR', { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
+                  <div className="whitespace-pre-wrap">{message.content}</div>
+                  <div className={`text-xs mt-2 ${message.type === 'user' ? 'text-blue-100' : 'text-gray-500'
+                    }`}>
+                    {message.timestamp.toLocaleTimeString('ko-KR', {
+                      hour: '2-digit',
+                      minute: '2-digit'
                     })}
                   </div>
                 </div>
@@ -342,5 +353,6 @@ export default function AIChat() {
     </div>
   )
 }
+
 
 

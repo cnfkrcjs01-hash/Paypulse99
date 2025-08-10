@@ -1,84 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 255 255 255;
-    --foreground: 17 24 39;
-    --border: 229 231 235; /* gray-200 */
+  * {
+    border-color: rgb(229 231 235);
+  }
+  
+  body {
+    @apply bg-gradient-to-br from-gray-50 to-orange-50 text-gray-900 min-h-screen;
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
   }
 }
 
 @layer components {
-  .card {
-    @apply bg-white/60 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 p-6 hover:shadow-xl transition-all duration-300;
-  }
-  
-  .card-gradient {
-    @apply bg-gradient-to-br from-white/80 to-slate-50/80 backdrop-blur-lg rounded-2xl shadow-lg border border-white/30 p-6;
-  }
-  
-  .btn-primary {
-    @apply bg-gradient-to-r from-blue-400 to-indigo-500 hover:from-blue-500 hover:to-indigo-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5;
-  }
-  
-  .btn-secondary {
-    @apply bg-white/70 hover:bg-white/90 text-slate-700 font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl border border-slate-200/50 transition-all duration-200 transform hover:-translate-y-0.5;
-  }
-  
-  .pulse-animation {
-    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  /* 통일된 페이지 배경 */
+  .page-background {
+    @apply bg-gradient-to-br from-gray-50 to-orange-50 min-h-screen;
   }
 
-  .glass-effect {
-    @apply bg-white/30 backdrop-blur-lg border border-white/20 shadow-lg;
+  /* 통일된 메인 컨테이너 배경 */
+  .main-container {
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20;
   }
 
-  /* 파스텔 그라데이션 클래스들 */
-  .gradient-rose {
-    @apply bg-gradient-to-br from-rose-100 to-pink-200;
+  /* OK저축은행 정확한 스타일 카드 */
+  .ok-card {
+    @apply bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-white/30 p-6 hover:shadow-md hover:bg-white transition-all duration-300;
   }
   
-  .gradient-blue {
-    @apply bg-gradient-to-br from-blue-100 to-indigo-200;
+  .ok-card-primary {
+    @apply bg-gradient-to-br from-orange-50 to-red-50 border-orange-100;
+  }
+
+  .ok-card-hover {
+    @apply hover:bg-white hover:shadow-lg hover:border-orange-200;
   }
   
-  .gradient-emerald {
-    @apply bg-gradient-to-br from-emerald-100 to-teal-200;
+  /* OK저축은행 정확한 버튼 스타일 */
+  .ok-btn {
+    @apply px-6 py-3 rounded-full font-semibold transition-all duration-200 text-sm;
   }
   
-  .gradient-purple {
-    @apply bg-gradient-to-br from-purple-100 to-violet-200;
+  .ok-btn-primary {
+    @apply ok-btn bg-orange-500 hover:bg-orange-600 text-white shadow-sm hover:shadow-md;
   }
   
-  .gradient-amber {
-    @apply bg-gradient-to-br from-amber-100 to-orange-200;
+  .ok-btn-secondary {
+    @apply ok-btn bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300;
+  }
+  
+  .ok-btn-outline {
+    @apply ok-btn border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white bg-white;
+  }
+
+  /* OK저축은행 입력 필드 */
+  .ok-input {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors text-sm;
+  }
+
+  /* OK저축은행 헤더 */
+  .ok-header {
+    @apply bg-white/90 backdrop-blur-sm shadow-sm border-b border-white/20;
+  }
+
+  /* OK저축은행 사이드바 */
+  .ok-sidebar {
+    @apply bg-white/90 backdrop-blur-sm border-r border-white/20;
+  }
+
+  /* OK저축은행 섹션 */
+  .ok-section {
+    @apply py-12 px-4;
+  }
+
+  .ok-section-gray {
+    @apply bg-gray-50/80 backdrop-blur-sm;
+  }
+
+  .ok-section-light {
+    @apply bg-orange-50/80 backdrop-blur-sm;
+  }
+
+  /* 통일된 섹션 배경 */
+  .ok-section-unified {
+    @apply bg-gradient-to-br from-gray-50/80 to-orange-50/80 backdrop-blur-sm;
+  }
+
+  /* OK저축은행 텍스트 스타일 */
+  .ok-text-primary {
+    @apply text-orange-600;
+  }
+
+  .ok-text-secondary {
+    @apply text-gray-600;
+  }
+
+  .ok-text-muted {
+    @apply text-gray-500;
+  }
+
+  /* OK저축은행 그라데이션 */
+  .ok-gradient {
+    @apply bg-gradient-to-r from-orange-500 to-red-500;
+  }
+
+  .ok-gradient-light {
+    @apply bg-gradient-to-r from-orange-50 to-red-50;
+  }
+
+  /* 통일된 그라데이션 */
+  .ok-gradient-unified {
+    @apply bg-gradient-to-br from-gray-50 to-orange-50;
+  }
+
+  /* OK저축은행 스타일 선택 박스 */
+  .ok-select {
+    @apply appearance-none bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg px-4 py-3 pr-10 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm;
+  }
+
+  /* OK저축은행 스타일 체크박스 */
+  .ok-checkbox {
+    @apply w-5 h-5 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 focus:ring-2;
+  }
+
+  /* 통일된 탭 스타일 */
+  .ok-tab {
+    @apply px-6 py-3 border-b-2 transition-colors text-sm font-medium;
+  }
+
+  .ok-tab-active {
+    @apply border-orange-500 text-orange-600 bg-orange-50;
+  }
+
+  .ok-tab-inactive {
+    @apply border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50;
+  }
+
+  /* 통일된 KPI 카드 */
+  .ok-kpi-card {
+    @apply ok-card text-center hover:bg-white hover:shadow-lg hover:border-orange-200;
+  }
+
+  /* 통일된 차트 컨테이너 */
+  .ok-chart-container {
+    @apply ok-card hover:bg-white hover:shadow-lg hover:border-orange-200;
   }
 }
 
-/* 커스텀 스크롤바 */
+/* 스크롤바 OK저축은행 스타일 */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-slate-100/50;
+  @apply bg-gray-100;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300/70 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-slate-400/70;
+  @apply bg-gray-300 rounded-lg hover:bg-gray-400;
 }
 
 

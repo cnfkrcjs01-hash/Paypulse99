@@ -1,8 +1,11 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import OKSidebar from '@/components/OKSidebar'
+import OKTopBar from '@/components/OKTopBar'
+import { Bot, Calculator, FileText, Home, Lightbulb, Loader, Menu, Send, TrendingUp, User } from 'lucide-react'
+import Link from 'next/link'
 import type React from 'react'
-import { Send, Bot, User, Loader, Lightbulb, TrendingUp, Calculator, FileText } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 interface Message {
   id: string
@@ -35,29 +38,43 @@ export default function AIChat() {
       ]
     }
   ])
-  
+
   const [inputMessage, setInputMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [chatData, setChatData] = useState<ChatData | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    // 업로드된 데이터 불러오기
     const savedData = localStorage.getItem('paypulse_data')
     if (savedData) {
-      const data = JSON.parse(savedData)
-      const totalCost = data.employees?.reduce((sum: number, emp: any) => sum + emp.totalCost, 0) || 0
-      const contractorCost = data.contractors?.reduce((sum: number, cont: any) => sum + cont.contractAmount, 0) || 0
-      const agencyCost = data.agencies?.reduce((sum: number, agency: any) => sum + agency.monthlyCost, 0) || 0
-      
-      setChatData({
-        employees: data.employees || [],
-        contractors: data.contractors || [],
-        agencies: data.agencies || [],
-        totalCost: totalCost + contractorCost + agencyCost,
-        totalEmployees: data.employees?.length || 0
-      })
+      try {
+        const data = JSON.parse(savedData)
+        const totalCost = (data.employees || []).reduce((sum: number, emp: any) => {
+          const cost = emp?.totalCost || 0
+          return sum + (isNaN(cost) ? 0 : cost)
+        }, 0)
+        const contractorCost = (data.contractors || []).reduce((sum: number, cont: any) => {
+          const cost = cont?.contractAmount || 0
+          return sum + (isNaN(cost) ? 0 : cost)
+        }, 0)
+        const agencyCost = (data.agencies || []).reduce((sum: number, agency: any) => {
+          const cost = agency?.monthlyCost || 0
+          return sum + (isNaN(cost) ? 0 : cost)
+        }, 0)
+
+        setChatData({
+          employees: data.employees || [],
+          contractors: data.contractors || [],
+          agencies: data.agencies || [],
+          totalCost: totalCost + contractorCost + agencyCost,
+          totalEmployees: data.employees?.length || 0
+        })
+      } catch (error) {
+        console.error('데이터 파싱 오류:', error)
+        setChatData(null)
+      }
     }
   }, [])
 
@@ -74,12 +91,12 @@ export default function AIChat() {
     const message = userMessage.toLowerCase()
 
     if (message.includes('현황') || message.includes('상황')) {
-      return chatData ? 
+      return chatData ?
         `우리 회사 인건비 현황을 분석해드릴게요! 📊\n\n` +
-        `💰 **총 인건비**: ${(chatData.totalCost).toLocaleString('ko-KR')}원\n` +
-        `👥 **총 인원**: ${chatData.totalEmployees}명\n` +
-        `📈 **인당 평균비용**: ${chatData.totalEmployees > 0 ? Math.round(chatData.totalCost / chatData.totalEmployees).toLocaleString('ko-KR') : 0}원\n\n` +
-        `직원 급여가 ${((chatData.employees.reduce((sum, emp) => sum + emp.totalCost, 0) / chatData.totalCost) * 100).toFixed(1)}%를 차지하고 있어요. 전체적으로 안정적인 구조를 보이고 있습니다! 👍` :
+        `💰 **인건비**: ${(chatData.totalCost || 0).toLocaleString('ko-KR')}원\n` +
+        `👥 **총 인원**: ${chatData.totalEmployees || 0}명\n` +
+        `📈 **인당 평균비용**: ${(chatData.totalEmployees || 0) > 0 ? Math.round((chatData.totalCost || 0) / (chatData.totalEmployees || 1)).toLocaleString('ko-KR') : 0}원\n\n` +
+        `직원 급여가 ${((chatData.employees || []).reduce((sum, emp) => sum + ((emp?.totalCost || 0) || 0), 0) / Math.max(chatData.totalCost || 1, 1) * 100).toFixed(1)}%를 차지하고 있어요. 전체적으로 안정적인 구조를 보이고 있습니다! 👍` :
         '데이터를 먼저 업로드해주시면 정확한 분석을 도와드릴 수 있어요! 📁'
 
     } else if (message.includes('4대보험') || message.includes('보험')) {
@@ -182,7 +199,7 @@ export default function AIChat() {
     try {
       // AI 응답 생성 (실제로는 API 호출)
       const aiResponse = await generateAIResponse(text)
-      
+
       // 응답 지연 시뮬레이션
       await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000))
 
@@ -224,132 +241,168 @@ export default function AIChat() {
   }
 
   return (
-    <div className="card h-[600px] flex flex-col">
-      <div className="flex items-center gap-3 mb-4 pb-4 border-b">
-        <div className="p-2 bg-blue-100 rounded-full">
-          <Bot className="w-6 h-6 text-blue-600" />
-        </div>
-        <div>
-          <h2 className="text-xl font-bold text-gray-800">AI 인사이트</h2>
-          <p className="text-sm text-gray-600">친구같은 AI와 대화하며 인건비를 분석해보세요</p>
-        </div>
-        <div className="ml-auto flex gap-2">
-          <span className="px-3 py-1 bg-green-100 text-green-800 text-xs rounded-full">온라인</span>
-        </div>
-      </div>
+    <div className="page-background">
+      <OKSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
-      {/* 메시지 영역 */}
-      <div className="flex-1 overflow-y-auto mb-4 space-y-4">
-        {messages.map((message) => (
-          <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[80%] ${message.type === 'user' ? 'order-2' : 'order-1'}`}>
-              <div className={`flex items-start gap-3 ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                <div className={`p-2 rounded-full flex-shrink-0 ${
-                  message.type === 'user' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-200 text-gray-600'
-                }`}>
-                  {message.type === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-                </div>
-                
-                <div className={`rounded-2xl px-4 py-3 ${
-                  message.type === 'user'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-800'
-                }`}>
-                  <div className="whitespace-pre-wrap">{message.content}</div>
-                  <div className={`text-xs mt-2 ${
-                    message.type === 'user' ? 'text-blue-100' : 'text-gray-500'
-                  }`}>
-                    {message.timestamp.toLocaleTimeString('ko-KR', { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })}
+      <div className="lg:pl-72">
+        <OKTopBar onMenuClick={() => setSidebarOpen(true)} />
+
+        {/* 네비게이션 버튼들 */}
+        <div className="bg-white border-b px-4 py-3">
+          <div className="flex items-center justify-between max-w-7xl mx-auto">
+            <div className="flex items-center gap-3">
+              <Link
+                href="/"
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Home className="w-4 h-4" />
+                홈으로
+              </Link>
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                <Menu className="w-4 h-4" />
+                메뉴 보기
+              </Link>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">AI 인사이트</h1>
+          </div>
+        </div>
+
+        <main className="ok-section-unified">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-800">AI 인사이트</h1>
+            <p className="text-gray-600 mt-2">친구같은 AI와 대화하며 인건비를 분석해보세요</p>
+          </div>
+
+          <div className="ok-card h-[600px] flex flex-col">
+            <div className="flex items-center gap-3 mb-4 pb-4 border-b">
+              <div className="p-2 bg-blue-100 rounded-full">
+                <Bot className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-800">AI 인사이트</h2>
+                <p className="text-sm text-gray-600">친구같은 AI와 대화하며 인건비를 분석해보세요</p>
+              </div>
+              <div className="ml-auto flex gap-2">
+                <span className="px-3 py-1 bg-green-100 text-green-800 text-xs rounded-full">온라인</span>
+              </div>
+            </div>
+
+            {/* 메시지 영역 */}
+            <div className="flex-1 overflow-y-auto mb-4 space-y-4">
+              {messages.map((message) => (
+                <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[80%] ${message.type === 'user' ? 'order-2' : 'order-1'}`}>
+                    <div className={`flex items-start gap-3 ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                      <div className={`p-2 rounded-full flex-shrink-0 ${message.type === 'user'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 text-gray-600'
+                        }`}>
+                        {message.type === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                      </div>
+
+                      <div className={`rounded-2xl px-4 py-3 ${message.type === 'user'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-800'
+                        }`}>
+                        <div className="whitespace-pre-wrap">{message.content}</div>
+                        <div className={`text-xs mt-2 ${message.type === 'user' ? 'text-blue-100' : 'text-gray-500'
+                          }`}>
+                          {message.timestamp.toLocaleTimeString('ko-KR', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* AI 응답의 제안 버튼들 */}
+                    {message.type === 'ai' && message.suggestions && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {message.suggestions.map((suggestion, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleSendMessage(suggestion)}
+                            className="px-3 py-1 bg-blue-50 text-blue-600 text-sm rounded-full hover:bg-blue-100 transition-colors"
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
+              ))}
 
-              {/* AI 응답의 제안 버튼들 */}
-              {message.type === 'ai' && message.suggestions && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {message.suggestions.map((suggestion, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleSendMessage(suggestion)}
-                      className="px-3 py-1 bg-blue-50 text-blue-600 text-sm rounded-full hover:bg-blue-100 transition-colors"
-                    >
-                      {suggestion}
-                    </button>
-                  ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-full bg-gray-200 text-gray-600">
+                      <Bot className="w-4 h-4" />
+                    </div>
+                    <div className="bg-gray-100 rounded-2xl px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <Loader className="w-4 h-4 animate-spin" />
+                        <span className="text-gray-600">생각 중...</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
+
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* 입력 영역 */}
+            <div className="border-t pt-4">
+              <div className="flex gap-3">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="인건비 관련 질문을 편하게 해주세요..."
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={isLoading}
+                />
+                <button
+                  onClick={() => handleSendMessage()}
+                  disabled={!inputMessage.trim() || isLoading}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-full transition-colors flex items-center gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* 빠른 질문 버튼들 */}
+              <div className="flex flex-wrap gap-2 mt-3">
+                {[
+                  { icon: <TrendingUp className="w-4 h-4" />, text: '현황 분석', query: '우리 회사 인건비 현황 분석해줘' },
+                  { icon: <Calculator className="w-4 h-4" />, text: '4대보험 계산', query: '4대보험료 계산해줘' },
+                  { icon: <Lightbulb className="w-4 h-4" />, text: '절약 팁', query: '인건비 절약 방법 알려줘' },
+                  { icon: <FileText className="w-4 h-4" />, text: '부서별 분석', query: '부서별 인건비 분석해줘' },
+                ].map((item, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSendMessage(item.query)}
+                    className="flex items-center gap-2 px-3 py-2 bg-gray-50/80 backdrop-blur-sm hover:bg-gray-100 text-gray-700 text-sm rounded-lg transition-colors"
+                    disabled={isLoading}
+                  >
+                    {item.icon}
+                    {item.text}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-        ))}
-
-        {isLoading && (
-          <div className="flex justify-start">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-full bg-gray-200 text-gray-600">
-                <Bot className="w-4 h-4" />
-              </div>
-              <div className="bg-gray-100 rounded-2xl px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <Loader className="w-4 h-4 animate-spin" />
-                  <span className="text-gray-600">생각 중...</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* 입력 영역 */}
-      <div className="border-t pt-4">
-        <div className="flex gap-3">
-          <input
-            ref={inputRef}
-            type="text"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="인건비 관련 질문을 편하게 해주세요..."
-            className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            disabled={isLoading}
-          />
-          <button
-            onClick={() => handleSendMessage()}
-            disabled={!inputMessage.trim() || isLoading}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-full transition-colors flex items-center gap-2"
-          >
-            <Send className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* 빠른 질문 버튼들 */}
-        <div className="flex flex-wrap gap-2 mt-3">
-          {[
-            { icon: <TrendingUp className="w-4 h-4" />, text: '현황 분석', query: '우리 회사 인건비 현황 분석해줘' },
-            { icon: <Calculator className="w-4 h-4" />, text: '4대보험 계산', query: '4대보험료 계산해줘' },
-            { icon: <Lightbulb className="w-4 h-4" />, text: '절약 팁', query: '인건비 절약 방법 알려줘' },
-            { icon: <FileText className="w-4 h-4" />, text: '부서별 분석', query: '부서별 인건비 분석해줘' },
-          ].map((item, index) => (
-            <button
-              key={index}
-              onClick={() => handleSendMessage(item.query)}
-              className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 text-sm rounded-lg transition-colors"
-              disabled={isLoading}
-            >
-              {item.icon}
-              {item.text}
-            </button>
-          ))}
-        </div>
+        </main>
       </div>
     </div>
   )
 }
+
 
 

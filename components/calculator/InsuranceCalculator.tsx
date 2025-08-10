@@ -64,10 +64,10 @@ export default function InsuranceCalculator() {
   }
 
   return (
-    <div className="card">
+    <div className="ok-card">
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-blue-100 rounded-lg">
-          <Shield className="w-6 h-6 text-blue-600" />
+        <div className="p-2 bg-ok-blue-100 rounded-lg">
+          <Shield className="w-6 h-6 text-ok-blue-600" />
         </div>
         <div>
           <h2 className="text-2xl font-bold text-gray-800">4대보험 계산기</h2>
@@ -84,8 +84,8 @@ export default function InsuranceCalculator() {
               onClick={() => setSelectedYear(year as 2024 | 2025)}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 selectedYear === year
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'ok-btn-primary'
+                  : 'ok-btn-outline'
               }`}
             >
               {year}년
@@ -99,110 +99,146 @@ export default function InsuranceCalculator() {
           기본급 (월급여)
           <span className="text-red-500 ml-1">*</span>
         </label>
-        <div className="relative">
+        <div className="flex gap-3">
           <input
             type="text"
             value={baseSalary}
             onChange={(e) => setBaseSalary(formatInput(e.target.value))}
-            placeholder="예: 3,500,000"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right text-lg"
+            placeholder="예: 3,000,000"
+            className="ok-input flex-1"
           />
-          <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">원</span>
+          <button
+            onClick={handleCalculate}
+            disabled={!baseSalary}
+            className="ok-btn-primary px-6"
+          >
+            계산하기
+          </button>
         </div>
       </div>
 
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-          <Info className="w-4 h-4" />
-          {selectedYear}년 4대보험료율
-        </h3>
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="flex justify-between">
-            <span className="text-gray-600">국민연금</span>
-            <span className="font-medium">{insuranceRates[selectedYear].nationalPension}%</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">건강보험</span>
-            <span className="font-medium">{(insuranceRates[selectedYear].healthInsurance + insuranceRates[selectedYear].longTermCare).toFixed(3)}%</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">고용보험</span>
-            <span className="font-medium">{insuranceRates[selectedYear].employmentInsurance}%</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">산재보험</span>
-            <span className="font-medium">{insuranceRates[selectedYear].industrialAccident}%</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex gap-3 mb-6">
-        <button
-          onClick={handleCalculate}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
-        >
-          <Calculator className="w-5 h-5" />
-          계산하기
-        </button>
-        <button
-          onClick={handleReset}
-          className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors flex items-center gap-2"
-        >
-          <RefreshCw className="w-4 h-4" />
-          초기화
-        </button>
-      </div>
-
+      {/* 계산 결과 */}
       {results && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-bold text-gray-800 border-b pb-2">계산 결과</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <ResultCard
               title="국민연금"
               amount={results.nationalPension}
               percentage={insuranceRates[selectedYear].nationalPension}
               color="blue"
+              subtitle="개인부담"
             />
             <ResultCard
               title="건강보험"
               amount={results.healthInsurance}
               percentage={insuranceRates[selectedYear].healthInsurance + insuranceRates[selectedYear].longTermCare}
               color="green"
-              subtitle="장기요양보험 포함"
+              subtitle="개인부담"
             />
             <ResultCard
               title="고용보험"
               amount={results.employmentInsurance}
               percentage={insuranceRates[selectedYear].employmentInsurance}
               color="purple"
+              subtitle="개인부담"
             />
             <ResultCard
               title="산재보험"
               amount={results.industrialAccident}
               percentage={insuranceRates[selectedYear].industrialAccident}
               color="orange"
+              subtitle="개인부담"
             />
           </div>
 
-          <div className="card bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-none">
-            <div className="flex justify-between items-center">
+          {/* 총계 */}
+          <div className="ok-card-primary p-6">
+            <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-lg font-bold mb-1">4대보험 총 부담금</h4>
-                <p className="text-sm opacity-90">개인 + 회사 부담분</p>
+                <h3 className="text-xl font-bold text-gray-800">총 보험료</h3>
+                <p className="text-gray-600">개인 부담분</p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold">{formatCurrency(results.total * 2)}</p>
-                <p className="text-sm opacity-90">개인: {formatCurrency(results.total)}</p>
+                <p className="text-3xl font-bold text-gray-800">
+                  {formatCurrency(results.total)}
+                </p>
+                <p className="text-sm text-gray-600">
+                  월 {formatCurrency(results.total)}원
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 회사 부담분 */}
+          <div className="ok-card bg-gray-50 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-gray-800">회사 부담분</h3>
+                <p className="text-gray-600">동일한 금액</p>
+              </div>
+              <div className="text-right">
+                <p className="text-3xl font-bold text-gray-800">
+                  {formatCurrency(results.total)}
+                </p>
+                <p className="text-sm text-gray-600">
+                  월 {formatCurrency(results.total)}원
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 연간 총액 */}
+          <div className="ok-card bg-gradient-to-r from-ok-blue-50 to-indigo-50 border-ok-blue-100 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-gray-800">연간 총액</h3>
+                <p className="text-gray-600">개인 + 회사 부담분</p>
+              </div>
+              <div className="text-right">
+                <p className="text-3xl font-bold text-gray-800">
+                  {formatCurrency(results.total * 24)}
+                </p>
+                <p className="text-sm text-gray-600">
+                  연 {formatCurrency(results.total * 24)}원
+                </p>
               </div>
             </div>
           </div>
         </div>
       )}
+
+      {/* 도움말 */}
+      <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div className="flex items-start gap-3">
+          <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div className="text-sm text-blue-800">
+            <h4 className="font-semibold mb-2">💡 계산 기준</h4>
+            <ul className="space-y-1">
+              <li>• 국민연금: 기본급의 4.5% (개인부담)</li>
+              <li>• 건강보험: 기본급의 3.545% + 장기요양보험 0.4581%</li>
+              <li>• 고용보험: 기본급의 0.9% (개인부담)</li>
+              <li>• 산재보험: 기본급의 0.7% (회사부담, 개인부담 없음)</li>
+              <li>• 모든 보험료는 월 기본급 기준으로 계산됩니다</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* 리셋 버튼 */}
+      <div className="mt-6 flex justify-end">
+        <button
+          onClick={handleReset}
+          className="ok-btn-outline flex items-center gap-2"
+        >
+          <RefreshCw className="w-4 h-4" />
+          다시 계산
+        </button>
+      </div>
     </div>
   )
 }
 
+// 결과 카드 컴포넌트
 interface ResultCardProps {
   title: string
   amount: number
@@ -213,38 +249,23 @@ interface ResultCardProps {
 
 function ResultCard({ title, amount, percentage, color, subtitle }: ResultCardProps) {
   const colorClasses = {
-    blue: 'border-blue-200 bg-blue-50',
-    green: 'border-green-200 bg-green-50',
-    purple: 'border-purple-200 bg-purple-50',
-    orange: 'border-orange-200 bg-orange-50',
-  }
-
-  const textColorClasses = {
-    blue: 'text-blue-800',
-    green: 'text-green-800',
-    purple: 'text-purple-800',
-    orange: 'text-orange-800',
+    blue: 'from-ok-blue-500 to-ok-blue-600',
+    green: 'from-green-500 to-green-600',
+    purple: 'from-purple-500 to-purple-600',
+    orange: 'from-orange-500 to-orange-600',
   }
 
   return (
-    <div className={`p-4 border-2 rounded-lg ${colorClasses[color]}`}>
-      <div className="flex justify-between items-start mb-2">
-        <div>
-          <h4 className={`font-bold ${textColorClasses[color]}`}>{title}</h4>
-          {subtitle && <p className="text-xs text-gray-600">{subtitle}</p>}
-        </div>
-        <span className={`text-sm font-medium ${textColorClasses[color]}`}>
-          {percentage}%
-        </span>
+    <div className={`ok-card bg-gradient-to-r ${colorClasses[color]} text-white border-none`}>
+      <div className="text-center">
+        <h3 className="font-semibold mb-1">{title}</h3>
+        {subtitle && <p className="text-xs opacity-80 mb-2">{subtitle}</p>}
+        <p className="text-2xl font-bold mb-1">{formatCurrency(amount)}</p>
+        <p className="text-sm opacity-80">{percentage}%</p>
       </div>
-      <p className={`text-xl font-bold ${textColorClasses[color]}`}>
-        {formatCurrency(amount)}
-      </p>
-      <p className="text-xs text-gray-600 mt-1">
-        개인 부담분 (회사 부담: {formatCurrency(amount)})
-      </p>
     </div>
   )
 }
+
 
 

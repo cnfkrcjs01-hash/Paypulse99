@@ -69,7 +69,7 @@ export default function AllowanceCalculator() {
   }
 
   return (
-    <div className="card">
+    <div className="ok-card">
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 bg-green-100 rounded-lg">
           <DollarSign className="w-6 h-6 text-green-600" />
@@ -92,7 +92,7 @@ export default function AllowanceCalculator() {
               type="number"
               value={inputs.baseSalary || ''}
               onChange={(e) => handleInputChange('baseSalary', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+              className="ok-input"
               placeholder="3500000"
             />
           </div>
@@ -103,107 +103,103 @@ export default function AllowanceCalculator() {
               <label className="block text-sm font-medium text-gray-700 mb-2">월 근무일수</label>
               <input
                 type="number"
-                value={inputs.workingDays}
+                value={inputs.workingDays || ''}
                 onChange={(e) => handleInputChange('workingDays', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="ok-input"
+                placeholder="22"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">일 근무시간</label>
               <input
                 type="number"
-                value={inputs.workingHours}
+                value={inputs.workingHours || ''}
                 onChange={(e) => handleInputChange('workingHours', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="ok-input"
+                placeholder="8"
               />
             </div>
           </div>
 
-          {/* 추가 근무 시간 */}
+          {/* 수당 입력 */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-gray-800 flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              추가 근무 시간 (월간)
-            </h4>
+            <h4 className="font-semibold text-gray-800">수당 계산 항목</h4>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-600 mb-1">연장근무 (1.5배)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">연장근무 (시간)</label>
                 <input
                   type="number"
                   value={inputs.overtimeHours || ''}
                   onChange={(e) => handleInputChange('overtimeHours', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500"
-                  placeholder="20"
+                  className="ok-input"
+                  placeholder="0"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">야간근무 (+50%)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">야간근무 (시간)</label>
                 <input
                   type="number"
                   value={inputs.nightHours || ''}
                   onChange={(e) => handleInputChange('nightHours', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500"
-                  placeholder="10"
+                  className="ok-input"
+                  placeholder="0"
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-600 mb-1">휴일근무 (1.5배)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">휴일근무 (시간)</label>
                 <input
                   type="number"
                   value={inputs.holidayHours || ''}
                   onChange={(e) => handleInputChange('holidayHours', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500"
-                  placeholder="8"
+                  className="ok-input"
+                  placeholder="0"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">단축근로시간</label>
-                <input
-                  type="number"
-                  value={inputs.shortWorkHours || ''}
-                  onChange={(e) => handleInputChange('shortWorkHours', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500"
-                  placeholder="20"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* 휴가/휴직 */}
-          <div className="space-y-4">
-            <h4 className="font-semibold text-gray-800 flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              휴가/휴직 정보
-            </h4>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">연차 사용일수</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">연차 사용일</label>
                 <input
                   type="number"
                   value={inputs.annualLeaveDays || ''}
                   onChange={(e) => handleInputChange('annualLeaveDays', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500"
-                  placeholder="5"
+                  className="ok-input"
+                  placeholder="0"
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-600 mb-1">육아휴직 개월수</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">육아휴직 (개월)</label>
                 <input
                   type="number"
                   value={inputs.childcareMonths || ''}
                   onChange={(e) => handleInputChange('childcareMonths', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500"
-                  placeholder="3"
+                  className="ok-input"
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">단축근로 (시간)</label>
+                <input
+                  type="number"
+                  value={inputs.shortWorkHours || ''}
+                  onChange={(e) => handleInputChange('shortWorkHours', e.target.value)}
+                  className="ok-input"
+                  placeholder="0"
                 />
               </div>
             </div>
           </div>
 
+          {/* 계산 버튼 */}
           <button
             onClick={calculateAllowances}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+            disabled={!inputs.baseSalary}
+            className="ok-btn-primary w-full py-3"
           >
             수당 계산하기
           </button>
@@ -215,78 +211,98 @@ export default function AllowanceCalculator() {
           
           {results ? (
             <div className="space-y-4">
-              <AllowanceResultCard
-                icon={<Clock className="w-5 h-5" />}
-                title="연장근무수당"
-                amount={results.overtime}
-                detail={`${inputs.overtimeHours}시간 × 1.5배`}
-                color="blue"
-              />
-              
-              <AllowanceResultCard
-                icon={<span className="text-lg">🌙</span>}
-                title="야간근무수당"
-                amount={results.night}
-                detail={`${inputs.nightHours}시간 × 50% 추가`}
-                color="indigo"
-              />
-              
-              <AllowanceResultCard
-                icon={<Calendar className="w-5 h-5" />}
-                title="휴일근무수당"
-                amount={results.holiday}
-                detail={`${inputs.holidayHours}시간 × 1.5배`}
-                color="purple"
-              />
-              
-              <AllowanceResultCard
-                icon={<span className="text-lg">🏖️</span>}
-                title="연차수당"
-                amount={results.annualLeave}
-                detail={`${inputs.annualLeaveDays}일 사용`}
-                color="green"
-              />
-              
-              <AllowanceResultCard
-                icon={<Baby className="w-5 h-5" />}
-                title="육아휴직급여"
-                amount={results.childcare}
-                detail={`${inputs.childcareMonths}개월 × 40%`}
-                color="pink"
-              />
-              
-              <AllowanceResultCard
-                icon={<Briefcase className="w-5 h-5" />}
-                title="단축근로수당"
-                amount={results.shortWork}
-                detail={`${inputs.shortWorkHours}시간 × 80%`}
-                color="orange"
-              />
+              <div className="grid grid-cols-1 gap-4">
+                <AllowanceResultCard
+                  icon={<Clock className="w-5 h-5" />}
+                  title="연장근무 수당"
+                  amount={results.overtime}
+                  detail="기본시급 × 1.5배"
+                  color="from-blue-500 to-blue-600"
+                />
+                <AllowanceResultCard
+                  icon={<Clock className="w-5 h-5" />}
+                  title="야간근무 수당"
+                  amount={results.night}
+                  detail="기본시급 × 50% 추가"
+                  color="from-indigo-500 to-indigo-600"
+                />
+                <AllowanceResultCard
+                  icon={<Calendar className="w-5 h-5" />}
+                  title="휴일근무 수당"
+                  amount={results.holiday}
+                  detail="기본시급 × 1.5배"
+                  color="from-purple-500 to-purple-600"
+                />
+                <AllowanceResultCard
+                  icon={<Calendar className="w-5 h-5" />}
+                  title="연차 수당"
+                  amount={results.annualLeave}
+                  detail="일일 기본급"
+                  color="from-green-500 to-green-600"
+                />
+                <AllowanceResultCard
+                  icon={<Baby className="w-5 h-5" />}
+                  title="육아휴직 급여"
+                  amount={results.childcare}
+                  detail="월 기본급 × 40%"
+                  color="from-pink-500 to-pink-600"
+                />
+                <AllowanceResultCard
+                  icon={<Briefcase className="w-5 h-5" />}
+                  title="단축근로 수당"
+                  amount={results.shortWork}
+                  detail="기본시급 × 80%"
+                  color="from-orange-500 to-orange-600"
+                />
+              </div>
 
-              {/* 총합 */}
-              <div className="card bg-gradient-to-r from-green-500 to-emerald-600 text-white border-none mt-6">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h4 className="text-xl font-bold mb-1">총 수당</h4>
-                    <p className="text-sm opacity-90">모든 수당의 합계</p>
-                  </div>
-                  <p className="text-3xl font-bold">{formatCurrency(results.total)}</p>
-                </div>
+              {/* 총계 */}
+              <div className="ok-card-primary p-6 text-center">
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">총 수당</h3>
+                <p className="text-4xl font-bold text-gray-800">
+                  {formatCurrency(results.total)}
+                </p>
+                <p className="text-gray-600 mt-2">월 수당 총액</p>
               </div>
             </div>
           ) : (
-            <div className="text-center py-12 text-gray-500">
-              <DollarSign className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>기본 정보를 입력하고 계산하기 버튼을 눌러주세요</p>
+            <div className="ok-card bg-gray-50 p-8 text-center">
+              <DollarSign className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-600 mb-2">수당 계산 준비</h3>
+              <p className="text-gray-500">왼쪽에 정보를 입력하고 계산하기 버튼을 클릭하세요</p>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* 도움말 */}
+      <div className="mt-8 p-6 bg-green-50 rounded-lg border border-green-200">
+        <h3 className="text-lg font-bold text-green-800 mb-4">💡 수당 계산 기준</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-green-700">
+          <div>
+            <h4 className="font-semibold mb-2">근무 관련 수당</h4>
+            <ul className="space-y-1">
+              <li>• 연장근무: 기본시급 × 1.5배</li>
+              <li>• 야간근무: 기본시급 × 50% 추가</li>
+              <li>• 휴일근무: 기본시급 × 1.5배</li>
+              <li>• 단축근로: 기본시급 × 80%</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2">휴가 관련 수당</h4>
+            <ul className="space-y-1">
+              <li>• 연차수당: 일일 기본급</li>
+              <li>• 육아휴직: 월 기본급 × 40% (최대 150만원)</li>
+              <li>• 기본시급 = 월 기본급 ÷ (월 근무일수 × 일 근무시간)</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
   )
 }
 
-// 수당 결과 카드
+// 수당 결과 카드 컴포넌트
 interface AllowanceResultCardProps {
   icon: React.ReactNode
   title: string
@@ -296,33 +312,21 @@ interface AllowanceResultCardProps {
 }
 
 function AllowanceResultCard({ icon, title, amount, detail, color }: AllowanceResultCardProps) {
-  const colorClasses: { [key: string]: string } = {
-    blue: 'border-blue-200 bg-blue-50 text-blue-800',
-    indigo: 'border-indigo-200 bg-indigo-50 text-indigo-800',
-    purple: 'border-purple-200 bg-purple-50 text-purple-800',
-    green: 'border-green-200 bg-green-50 text-green-800',
-    pink: 'border-pink-200 bg-pink-50 text-pink-800',
-    orange: 'border-orange-200 bg-orange-50 text-orange-800',
-  }
-
   return (
-    <div className={`p-4 border-2 rounded-lg ${colorClasses[color]}`}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-white/70 rounded-lg">
-            {icon}
-          </div>
-          <div>
-            <h4 className="font-bold">{title}</h4>
-            <p className="text-sm opacity-75">{detail}</p>
-          </div>
+    <div className={`ok-card bg-gradient-to-r ${color} text-white border-none`}>
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-white/20 rounded-lg">
+          {icon}
         </div>
-        <p className="text-lg font-bold">
-          {formatCurrency(amount)}
-        </p>
+        <div className="flex-1">
+          <h4 className="font-semibold mb-1">{title}</h4>
+          <p className="text-sm opacity-80 mb-2">{detail}</p>
+          <p className="text-xl font-bold">{formatCurrency(amount)}</p>
+        </div>
       </div>
     </div>
   )
 }
+
 
 
