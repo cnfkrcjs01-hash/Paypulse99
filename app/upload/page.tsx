@@ -7,7 +7,7 @@ import IntegratedFileUpload from '@/components/upload/IntegratedFileUpload'
 import { FeeData, PayrollData } from '@/types/payroll'
 import { BarChart3, CheckCircle, Database, FileSpreadsheet, Home, Menu, Star, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface IntegratedData {
   payrollData: PayrollData[]
@@ -19,6 +19,31 @@ export default function IntegratedUploadPage() {
     payrollData: [],
     feeData: []
   })
+
+  // localStorage에서 직접 데이터 로드
+  const loadDataFromStorage = () => {
+    try {
+      const savedData = localStorage.getItem('integrated_paypulse_data')
+      if (savedData) {
+        const parsedData = JSON.parse(savedData)
+        console.log('localStorage에서 로드된 데이터:', parsedData)
+        
+        if (parsedData.payrollData && parsedData.feeData) {
+          setUploadedData({
+            payrollData: parsedData.payrollData || [],
+            feeData: parsedData.feeData || []
+          })
+        }
+      }
+    } catch (error) {
+      console.error('localStorage 데이터 로드 오류:', error)
+    }
+  }
+
+  // 컴포넌트 마운트 시 데이터 로드
+  useEffect(() => {
+    loadDataFromStorage()
+  }, [])
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const handleDataUploaded = (data: IntegratedData) => {
@@ -104,10 +129,9 @@ export default function IntegratedUploadPage() {
   })
 
   const formatShortCurrency = (amount: number) => {
-    if (amount >= 100000000) {
-      return `₩${(amount / 100000000).toFixed(1)}억`
-    } else if (amount >= 10000) {
-      return `₩${(amount / 10000).toFixed(0)}만`
+    if (amount >= 10000) {
+      const manWon = (amount / 10000).toFixed(0)
+      return `₩${Number(manWon).toLocaleString()}만원`
     } else {
       return `₩${amount.toLocaleString()}`
     }
@@ -244,6 +268,52 @@ export default function IntegratedUploadPage() {
               </div>
             </div>
           ) : null}
+
+          {/* 디버깅 패널 */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="ok-card bg-yellow-50 border-yellow-200 mt-8">
+              <h3 className="text-lg font-bold text-yellow-800 mb-4">🔍 디버깅 정보</h3>
+              <div className="space-y-3 text-sm">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <strong>localStorage 상태:</strong>
+                    <div className="mt-2 space-y-1">
+                      <div>integrated_paypulse_data: {localStorage.getItem('integrated_paypulse_data') ? '있음' : '없음'}</div>
+                      <div>upload_history: {localStorage.getItem('upload_history') ? '있음' : '없음'}</div>
+                    </div>
+                  </div>
+                  <div>
+                    <strong>현재 상태:</strong>
+                    <div className="mt-2 space-y-1">
+                      <div>급여 데이터: {uploadedData.payrollData.length}건</div>
+                      <div>수수료 데이터: {uploadedData.feeData.length}건</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      console.log('=== 디버깅 정보 출력 ===')
+                      console.log('localStorage keys:', Object.keys(localStorage))
+                      console.log('integrated_paypulse_data:', localStorage.getItem('integrated_paypulse_data'))
+                      console.log('upload_history:', localStorage.getItem('upload_history'))
+                      console.log('현재 uploadedData:', uploadedData)
+                      console.log('=== 디버깅 정보 완료 ===')
+                    }}
+                    className="bg-yellow-600 text-white px-3 py-1 rounded text-xs hover:bg-yellow-700"
+                  >
+                    콘솔 로그
+                  </button>
+                  <button
+                    onClick={loadDataFromStorage}
+                    className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700"
+                  >
+                    데이터 새로고침
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* 추가 기능 안내 - OK저축은행 스타일 */}
           <div className="ok-card bg-gray-50/80 backdrop-blur-sm border-gray-200 mt-8">

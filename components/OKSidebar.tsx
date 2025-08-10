@@ -1,21 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import {
+    Building2,
+    ChevronRight,
+    DollarSign,
+    Home,
+    MessageCircle,
+    Upload,
+    X
+} from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import Image from 'next/image'
-import { 
-  Home, Upload, BarChart3, Calculator, MessageCircle, 
-  Menu, X, Settings, HelpCircle, User, Bell, Search,
-  ChevronRight, Building2, DollarSign
-} from 'lucide-react'
 
 const navigation = [
   { name: '홈', href: '/', icon: Home, description: '메인 대시보드' },
   { name: '통합데이터업로드', href: '/upload', icon: Upload, description: '급여대장 및 수수료 파일 업로드' },
-  { name: '현황 대시보드', href: '/dashboard', icon: BarChart3, description: '실시간 인건비 현황' },
-          { name: '인건비', href: '/total-labor-cost', icon: DollarSign, description: '직접/간접 인건비 분석' },
-  { name: '인건비 계산기', href: '/calculator', icon: Calculator, description: '4대보험 및 수당 계산' },
+  { name: '인건비', href: '/total-labor-cost', icon: DollarSign, description: '직접/간접 인건비 분석' },
   { name: 'AI 인사이트', href: '/ai-chat', icon: MessageCircle, description: '스마트 분석 서비스' },
 ]
 
@@ -23,7 +23,6 @@ const quickActions = [
   { name: '통합한도조회', href: '/limits' },
   { name: '인건비 분석', href: '/analysis' },
   { name: '보고서 생성', href: '/reports' },
-  { name: '계산기 바로가기', href: '/calculator' },
 ]
 
 interface OKSidebarProps {

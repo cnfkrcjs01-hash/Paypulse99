@@ -80,7 +80,7 @@ export default function IntegratedFileUpload({ onDataUploaded }: IntegratedFileU
         if (isPayrollFile) {
           newPayrollData.push(...data.payrollData)
           newHistory.push({
-            id: `payroll_${Date.now()}_${Math.random()}`,
+            id: `payroll_${performance.now()}_${Math.random()}`,
             fileName: file.name,
             fileType: 'payroll',
             uploadDate: new Date().toISOString(),
@@ -90,7 +90,7 @@ export default function IntegratedFileUpload({ onDataUploaded }: IntegratedFileU
         } else if (isFeeFile) {
           newFeeData.push(...data.feeData)
           newHistory.push({
-            id: `fee_${Date.now()}_${Math.random()}`,
+            id: `fee_${performance.now()}_${Math.random()}`,
             fileName: file.name,
             fileType: 'fee',
             uploadDate: new Date().toISOString(),
@@ -441,7 +441,7 @@ function parsePayrollData(data: any[], fileName: string): PayrollData[] {
     const totalPayroll = baseSalary + allowances + overtimePay + annualLeavePay + insurancePremiums + bonuses
 
     const result = {
-      id: `payroll_${Date.now()}_${index}`,
+              id: `payroll_${performance.now()}_${index}`,
       employeeId: row['사번'] || row['직원번호'] || row['번호'] || row['ID'] || `EMP_${index + 1}`,
       employeeName: row['이름'] || row['성명'] || row['직원명'] || row['성명'] || row['직원이름'] || `직원_${index + 1}`,
       department: row['부서'] || row['소속'] || row['팀'] || row['본부'] || row['사업부'] || '미분류',
@@ -485,6 +485,8 @@ function parseFeeData(data: any[], fileName: string): FeeData[] {
   }
 
   console.log('수수료 데이터 파싱 시작:', data.slice(0, 2))
+  console.log('수수료 데이터 원본 헤더:', Object.keys(data[0] || {}))
+  console.log('수수료 데이터 첫 번째 행:', data[0])
 
   return data.map((row, index) => {
     // 안전한 숫자 변환 함수
@@ -494,10 +496,10 @@ function parseFeeData(data: any[], fileName: string): FeeData[] {
       return isNaN(num) ? defaultValue : num
     }
 
-    // 이미지 데이터 구조에 맞춘 컬럼 매핑
-    const personnel = safeNumber(row['인원'] || row['명'] || row['인력'] || row['직원수'], 0)
-    const monthlyAmount = safeNumber(row['월금액'] || row['월비용'] || row['월수수료'] || row['월지급액'], 0)
-    const annualAmount = safeNumber(row['년금액'] || row['년비용'] || row['년수수료'] || row['년지급액'], 0)
+    // 이미지 데이터 구조에 맞춘 컬럼 매핑 (더 많은 컬럼명 지원)
+    const personnel = safeNumber(row['인원'] || row['명'] || row['인력'] || row['직원수'] || row['인원수'] || row['직원'], 0)
+    const monthlyAmount = safeNumber(row['월금액'] || row['월비용'] || row['월수수료'] || row['월지급액'] || row['월비용'] || row['월금'], 0)
+    const annualAmount = safeNumber(row['년금액'] || row['년비용'] || row['년수수료'] || row['년지급액'] || row['연비용'] || row['연금'], 0)
 
     // 월금액이 없고 년금액만 있는 경우 월금액 계산 (12개월로 나누기)
     const calculatedMonthlyAmount = monthlyAmount || (annualAmount / 12)
@@ -528,7 +530,7 @@ function parseFeeData(data: any[], fileName: string): FeeData[] {
     }
 
     const result = {
-      id: `fee_${Date.now()}_${index}`,
+              id: `fee_${performance.now()}_${index}`,
       companyName: row['업체명'] || row['회사명'] || row['이름'] || row['업체'] || row['업체이름'] || row['계약업체'] || `업체_${index + 1}`,
       businessType: determineBusinessType(category),
       serviceDescription,
@@ -555,14 +557,29 @@ function parseFeeData(data: any[], fileName: string): FeeData[] {
     console.log(`업체 ${result.companyName} 파싱 결과:`, result)
     return result
   }).filter(item => {
-    // 유효한 데이터만 필터링 (업체명이 있고 인원이나 월금액이 0보다 큰 경우)
-    const isValid = item.companyName &&
-      !item.companyName.includes('업체_') &&
-      (item.personnel > 0 || item.monthlyFee > 0 || item.totalFee > 0) &&
+    // 유효한 데이터만 필터링 (업체명이 있고 기본 정보가 있는 경우)
+    const hasValidCompanyName = item.companyName && 
+      !item.companyName.includes('업체_') && 
       item.companyName.trim() !== ''
+    
+    const hasValidData = item.personnel > 0 || 
+      item.monthlyFee > 0 || 
+      item.totalFee > 0 || 
+      item.serviceDescription || 
+      item.category
+
+    const isValid = hasValidCompanyName && hasValidData
 
     if (!isValid) {
-      console.log(`유효하지 않은 데이터 제외:`, item)
+      console.log(`유효하지 않은 데이터 제외:`, {
+        companyName: item.companyName,
+        personnel: item.personnel,
+        monthlyFee: item.monthlyFee,
+        totalFee: item.totalFee,
+        serviceDescription: item.serviceDescription,
+        category: item.category,
+        reason: !hasValidCompanyName ? '업체명 없음' : '데이터 부족'
+      })
     }
 
     return isValid
@@ -604,7 +621,16 @@ function hasFeeColumns(data: any[], headers: string[]): boolean {
     // 이미지 데이터 구조에 맞는 컬럼들
     '인원', '월금액', '년금액', '구분', '업무', '계약주체', '비고', '외주', '인력비용'
   ]
-  const hasFeeHeaders = feeKeywords.some(keyword =>
+  
+  // 더 많은 키워드 추가
+  const additionalKeywords = [
+    '외주', '인력', '비용', '업체', '회사', '계약', '서비스', '업무', '개발', '인프라',
+    '도급', '대행', '협력', '파트너', '벤더', '공급업체', '하청', '위탁'
+  ]
+  
+  const allKeywords = [...feeKeywords, ...additionalKeywords]
+  
+  const hasFeeHeaders = allKeywords.some(keyword =>
     headers.some(header => header && header.toLowerCase().includes(keyword.toLowerCase()))
   )
 
@@ -617,10 +643,14 @@ function hasFeeColumns(data: any[], headers: string[]): boolean {
   ]
   const hasFeeData = feeKeys.some(key => key in firstRow)
 
-  console.log('수수료 컬럼 확인:', {
-    headers,
+  console.log('수수료 컬럼 확인 (상세):', {
+    headers: headers.map(h => h?.toString()),
+    allKeywords,
+    matchedKeywords: allKeywords.filter(keyword =>
+      headers.some(header => header && header.toLowerCase().includes(keyword.toLowerCase()))
+    ),
     hasFeeHeaders,
-    firstRow,
+    firstRow: Object.keys(firstRow || {}),
     hasFeeData,
     result: hasFeeHeaders || hasFeeData
   })

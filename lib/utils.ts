@@ -129,5 +129,118 @@ export function initializeDashboardData() {
   return data
 }
 
+// 날짜 포맷팅 함수
+export function formatDate(date: Date | string): string {
+  const d = new Date(date)
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(d)
+}
+
+// 시간 포맷팅 함수
+export function formatTime(date: Date | string): string {
+  const d = new Date(date)
+  return new Intl.DateTimeFormat('ko-KR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(d)
+}
+
+// 파일 크기 포맷팅
+export function formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 Bytes'
+  const k = 1024
+  const sizes = ['Bytes', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
+
+// 데이터 검증 함수
+export function validateEmployeeData(data: any): boolean {
+  const requiredFields = ['name', 'department', 'position', 'baseSalary']
+  return requiredFields.every(field => data[field] !== undefined && data[field] !== '')
+}
+
+// 급여 등급 계산
+export function calculateSalaryGrade(baseSalary: number): string {
+  if (baseSalary < 3000000) return '초급'
+  if (baseSalary < 5000000) return '중급'
+  if (baseSalary < 8000000) return '고급'
+  return '특급'
+}
+
+// 부서별 평균 급여 계산
+export function calculateDepartmentAverageSalary(employees: any[], department: string): number {
+  const deptEmployees = employees.filter(emp => emp.department === department)
+  if (deptEmployees.length === 0) return 0
+  
+  const totalSalary = deptEmployees.reduce((sum, emp) => sum + emp.baseSalary, 0)
+  return Math.floor(totalSalary / deptEmployees.length)
+}
+
+// 연도별 급여 증가율 계산
+export function calculateSalaryIncreaseRate(currentSalary: number, previousSalary: number): number {
+  if (previousSalary === 0) return 0
+  return ((currentSalary - previousSalary) / previousSalary) * 100
+}
+
+// 효율성 점수 계산 (ROI 기반)
+export function calculateEfficiencyScore(revenue: number, totalCost: number, targetROI: number = 0.15): number {
+  const actualROI = calculateROI(revenue, totalCost)
+  const score = Math.min(100, Math.max(0, (actualROI / targetROI) * 100))
+  return Math.round(score)
+}
+
+// 데이터 내보내기 함수 (CSV)
+export function exportToCSV(data: any[], filename: string): void {
+  if (data.length === 0) return
+  
+  const headers = Object.keys(data[0])
+  const csvContent = [
+    headers.join(','),
+    ...data.map(row => headers.map(header => `"${row[header]}"`).join(','))
+  ].join('\n')
+  
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  const url = URL.createObjectURL(blob)
+  link.setAttribute('href', url)
+  link.setAttribute('download', `${filename}.csv`)
+  link.style.visibility = 'hidden'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+// 로컬 스토리지 유틸리티
+export const storage = {
+  get: (key: string) => {
+    try {
+      const item = localStorage.getItem(key)
+      return item ? JSON.parse(item) : null
+    } catch {
+      return null
+    }
+  },
+  set: (key: string, value: any) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value))
+      return true
+    } catch {
+      return false
+    }
+  },
+  remove: (key: string) => {
+    try {
+      localStorage.removeItem(key)
+      return true
+    } catch {
+      return false
+    }
+  }
+}
+
 
 

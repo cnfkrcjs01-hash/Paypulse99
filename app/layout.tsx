@@ -1,3 +1,4 @@
+import Navigation from '@/components/Navigation'
 import { Inter, Noto_Sans_KR } from 'next/font/google'
 import './globals.css'
 
@@ -21,7 +22,10 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} ${notoSansKR.variable} font-noto`}>
         <div className="min-h-screen bg-white">
-          {children}
+          <Navigation />
+          <main className="pt-16">
+            {children}
+          </main>
         </div>
       </body>
     </html>

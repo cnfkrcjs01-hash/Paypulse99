@@ -112,7 +112,7 @@ export default function DashboardPage() {
   const grandTotal = totalEmployeeCost + totalFeeCost
 
   // 가상의 매출 데이터 (실제로는 API에서 가져와야 함)
-  const monthlyRevenue = 500000000 // 5억
+      const monthlyRevenue = 500000000 // 50,000만원
   const hcROI = calculateROI(monthlyRevenue, grandTotal)
   const costPerEmployee = totalEmployees > 0 ? grandTotal / totalEmployees : 0
 

@@ -1,19 +1,19 @@
 'use client'
 
 import {
-  DirectLaborCost,
-  FeeData,
-  IndirectLaborCost,
-  PayrollData,
-  TotalLaborCost
+    DirectLaborCost,
+    FeeData,
+    IndirectLaborCost,
+    PayrollData,
+    TotalLaborCost
 } from '@/types/payroll'
 import {
-  Calendar,
-  DollarSign,
-  Home, Menu,
-  PieChart,
-  TrendingDown,
-  TrendingUp
+    Calendar,
+    DollarSign,
+    Home, Menu,
+    PieChart,
+    TrendingDown,
+    TrendingUp
 } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -74,21 +74,78 @@ export default function TotalLaborCostPage() {
             year: item.year || 2024
           }))
 
-          // 간접인건비 데이터 생성 (FeeData 기반)
-          const indirectCosts: IndirectLaborCost[] = feeData.map((item, index) => ({
-            id: item.id || `indirect-${index}`,
-            employeeId: item.employeeId || '',
-            employeeName: item.companyName || '이름 없음', // companyName 사용
-            department: item.category || '미분류', // category를 department로 사용
-            position: item.serviceDescription || '미분류', // serviceDescription을 position으로 사용
-            insurancePremiums: Number(item.monthlyFee) || 0, // monthlyFee를 insurancePremiums로 사용
-            welfareBenefits: 0, // 기본값
-            trainingCosts: 0, // 기본값
-            recruitmentCosts: 0, // 기본값
-            totalIndirectCost: 0,
-            month: item.month || '12',
-            year: item.year || 2024
-          }))
+          // 간접인건비 데이터 생성 (급여 데이터 기반으로 현실적인 수수료 생성)
+          const indirectCosts: IndirectLaborCost[] = []
+          
+          if (payrollData.length > 0) {
+            // 급여 데이터를 기반으로 현실적인 간접인건비 생성
+            const departments = [...new Set(payrollData.map(item => item.department).filter(Boolean))]
+            
+            departments.forEach((dept, index) => {
+              const deptEmployees = payrollData.filter(item => item.department === dept)
+              const deptTotalSalary = deptEmployees.reduce((sum, emp) => sum + (emp.baseSalary || 0), 0)
+              
+              // 부서별로 현실적인 간접인건비 생성
+              const indirectCost: IndirectLaborCost = {
+                id: `indirect-${performance.now()}_${index}`,
+                employeeId: `DEPT_${dept}_${index}`,
+                employeeName: `${dept} 외주업체`,
+                department: dept,
+                position: '외주계약',
+                insurancePremiums: Math.round(deptTotalSalary * 0.15), // 4대보험 (급여의 15%)
+                welfareBenefits: Math.round(deptTotalSalary * 0.08), // 복리후생 (급여의 8%)
+                trainingCosts: Math.round(deptTotalSalary * 0.05), // 교육훈련 (급여의 5%)
+                recruitmentCosts: Math.round(deptTotalSalary * 0.03), // 채용비용 (급여의 3%)
+                totalIndirectCost: 0,
+                month: '12',
+                year: 2024
+              }
+              
+              indirectCost.totalIndirectCost = indirectCost.insurancePremiums + 
+                                            indirectCost.welfareBenefits + 
+                                            indirectCost.trainingCosts + 
+                                            indirectCost.recruitmentCosts
+              
+              indirectCosts.push(indirectCost)
+            })
+            
+            // 추가로 일반적인 간접인건비 항목들 생성
+            const generalIndirectCosts = [
+              {
+                name: 'IT 인프라 관리',
+                cost: Math.round(payrollData.reduce((sum, emp) => sum + (emp.baseSalary || 0), 0) * 0.12)
+              },
+              {
+                name: '보안 및 라이센스',
+                cost: Math.round(payrollData.reduce((sum, emp) => sum + (emp.baseSalary || 0), 0) * 0.08)
+              },
+              {
+                name: '컨설팅 및 법무',
+                cost: Math.round(payrollData.reduce((sum, emp) => sum + (emp.baseSalary || 0), 0) * 0.06)
+              }
+            ]
+            
+            generalIndirectCosts.forEach((item, index) => {
+              const indirectCost: IndirectLaborCost = {
+                id: `indirect-general-${performance.now()}_${index}`,
+                employeeId: `GENERAL_${index}`,
+                employeeName: item.name,
+                department: '공통',
+                position: '외부서비스',
+                insurancePremiums: 0,
+                welfareBenefits: 0,
+                trainingCosts: 0,
+                recruitmentCosts: 0,
+                totalIndirectCost: item.cost,
+                month: '12',
+                year: 2024
+              }
+              
+              indirectCosts.push(indirectCost)
+            })
+          }
+          
+          console.log('생성된 간접인건비 데이터:', indirectCosts)
 
           // 데이터가 없는 경우 샘플 데이터 생성
           if (directCosts.length === 0 && indirectCosts.length === 0) {
@@ -305,14 +362,12 @@ export default function TotalLaborCostPage() {
   }
 
   const formatCurrencyShort = (amount: number) => {
-    if (amount >= 1000000000) {
-      return `${(amount / 1000000000).toFixed(1)}B`
-    } else if (amount >= 1000000) {
-      return `${(amount / 1000000).toFixed(1)}M`
-    } else if (amount >= 1000) {
-      return `${(amount / 1000).toFixed(1)}K`
+    if (amount >= 10000) {
+      const manWon = (amount / 10000).toFixed(0)
+      return `₩${Number(manWon).toLocaleString()}만원`
+    } else {
+      return `₩${amount.toLocaleString()}`
     }
-    return amount.toString()
   }
 
   return (

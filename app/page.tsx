@@ -1,9 +1,10 @@
-import Link from 'next/link'
-import { 
-  ArrowRight, TrendingUp, Calculator, Upload, MessageCircle, 
-  BarChart3, Users, DollarSign, Target, Award, Zap,
-  CheckCircle, Star, Shield, Clock, FileSpreadsheet, Building2
+import {
+    ArrowRight,
+    Calculator,
+    Star,
+    Upload
 } from 'lucide-react'
+import Link from 'next/link'
 
 export default function Home() {
   return (
@@ -31,25 +32,20 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/upload" className="ok-btn-primary text-lg px-8 py-4 inline-flex items-center justify-center">
+              <div className="flex justify-center">
+                <Link href="/dashboard" className="ok-btn-primary text-lg px-8 py-4 inline-flex items-center justify-center">
                   지금 시작하기
                   <ArrowRight className="w-5 h-5 ml-2" />
-                </Link>
-                <Link href="/dashboard" className="ok-btn-outline text-lg px-8 py-4 inline-flex items-center justify-center">
-                  대시보드 보기
                 </Link>
               </div>
 
               {/* 빠른 링크들 - OK저축은행 스타일 */}
-              <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 pt-4">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 pt-4">
                 {[
                   { name: '통합데이터업로드', href: '/upload' },
-                  { name: '급여 계산기', href: '/calculator' },
+                  { name: '인건비', href: '/total-labor-cost' },
                   { name: 'AI 분석', href: '/ai-chat' },
-                  { name: '현황 대시보드', href: '/dashboard' },
-                  { name: '급여', href: '/salary' },
-                  { name: '인건비', href: '/total-labor-cost' }
+                  { name: '급여 계산기', href: '/calculator' }
                 ].map((item) => (
                   <Link 
                     key={item.name}
@@ -73,15 +69,15 @@ export default function Home() {
                   </div>
                   <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
                     <span className="text-gray-600 font-medium">월 인건비</span>
-                    <span className="text-2xl font-bold text-gray-900">₩1.2억</span>
+                    <span className="text-2xl font-bold text-gray-900">₩12,000만원</span>
                   </div>
                   <div className="flex justify-between items-center p-4 bg-blue-50 rounded-lg">
                     <span className="text-gray-600 font-medium">직접인건비</span>
-                    <span className="text-2xl font-bold text-blue-600">₩8.5천만</span>
+                    <span className="text-2xl font-bold text-blue-600">₩8,500만원</span>
                   </div>
                   <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
                     <span className="text-gray-600 font-medium">간접인건비</span>
-                    <span className="text-2xl font-bold text-green-600">₩3.5천만</span>
+                    <span className="text-2xl font-bold text-green-600">₩3,500만원</span>
                   </div>
                   <div className="flex justify-between items-center p-4 bg-orange-50 rounded-lg">
                     <span className="text-gray-600 font-medium">HC ROI</span>
